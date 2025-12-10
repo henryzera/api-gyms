@@ -51,6 +51,26 @@ cp .env.example .env
    ```
    A API iniciará em `http://localhost:<PORT>` (padrão `3333`).
 
+## Banco de dados com Docker
+
+O arquivo `docker-compose.yml` já provisiona um PostgreSQL Bitnami com usuário/senha `docker`.
+
+```bash
+# iniciar em background (porta 5432)
+docker compose up -d api-solid-pg
+
+# acompanhar logs
+docker compose logs -f api-solid-pg
+
+# parar mantendo dados
+docker compose stop api-solid-pg
+
+# remover container e volumes
+docker compose down -v api-solid-pg
+```
+
+Aplique `npx prisma migrate dev` sempre que o schema mudar para garantir que o banco do container esteja alinhado com a aplicação.
+
 ## Scripts úteis
 
 | Comando | Descrição |
