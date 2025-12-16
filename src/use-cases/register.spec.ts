@@ -1,21 +1,28 @@
-import {describe, expect, it} from 'vitest'
+import {beforeEach, describe, expect, it} from 'vitest'
 import { RegisterUseCase } from './register.js';
 import { compare, hash } from 'bcryptjs';
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository.js';
 import { UserAlredyExistsError } from './errors/user-alredy-exists-error.js';
+import type { UsersRepository } from '@/repositories/users-repository.js';
+
+let usersRepository: UsersRepository
+let sut: RegisterUseCase
 
 describe('Register Use Case', () => {
+    beforeEach(()=>{
+        usersRepository = new InMemoryUsersRepository
+        sut = new RegisterUseCase(usersRepository)
+    })
 
     it('should able to register', async ()=>{
-        const usersRepository = new InMemoryUsersRepository
-        const registerUseCase = new RegisterUseCase(usersRepository)
+        
         const userData = {
             name: "John Doe",
             email: "johndoe@example.com",
             password: "123456",
         }
 
-        const { user } = await registerUseCase.execute(userData)
+        const { user } = await sut.execute(userData)
 
         expect(user.id).toEqual(expect.any(String))
     })    
