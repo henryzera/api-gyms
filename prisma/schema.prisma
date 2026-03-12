@@ -44,7 +44,7 @@ model Gym {
   id            String @id @default(uuid())
   title         String
   description   String?
-  phone         Decimal
+  phone         String
   longitude     Decimal
   latitude     Decimal
 

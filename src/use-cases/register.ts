@@ -1,42 +1,46 @@
-import type { UsersRepository } from "@/repositories/users-repository.js"
-import { hash } from "bcryptjs"
-import { UserAlredyExistsError } from "./errors/user-alredy-exists-error.js"
-import type { User } from "@prisma/client"
+import type { UsersRepository } from '@/repositories/users-repository.js'
+import { hash } from 'bcryptjs'
+import { UserAlredyExistsError } from './errors/user-alredy-exists-error.js'
+import type { User } from '@prisma/client'
 
-interface registerUseCaseRequest{
-    name: string
-    email: string
-    password: string
+interface registerUseCaseRequest {
+  name: string
+  email: string
+  password: string
 }
 
 interface RegisterUseCaseResponse {
-    user: User
+  user: User
 }
 
-export class RegisterUseCase{
+export class RegisterUseCase {
+  private usersRepository: UsersRepository
 
-    constructor(private usersRepository: UsersRepository){
+  constructor(usersRepository: UsersRepository) {
+    this.usersRepository = usersRepository
+  }
+
+  async execute({
+    name,
+    email,
+    password,
+  }: registerUseCaseRequest): Promise<RegisterUseCaseResponse> {
+    const passwordHash = await hash(password, 6)
+
+    const userWithSameEmail = await this.usersRepository.findByEmail(email)
+
+    if (userWithSameEmail) {
+      throw new UserAlredyExistsError()
     }
 
-    async execute({
-        name, email, password
-    }: registerUseCaseRequest): Promise<RegisterUseCaseResponse>{
-        const password_hash = await hash(password, 6)
-        
-        const userWithSameEmail = await this.usersRepository.findByEmail(email)
+    // const prismaUsersRepository = new PrismaUsersRepository()
 
-        if(userWithSameEmail){
-            throw new UserAlredyExistsError()
-        }
+    const user = await this.usersRepository.create({
+      name,
+      email,
+      password_hash: passwordHash,
+    })
 
-        // const prismaUsersRepository = new PrismaUsersRepository()
-
-        const user = await this.usersRepository.create({
-            name,
-            email,
-            password_hash
-        })
-
-        return { user }
-    }
+    return { user }
+  }
 }
