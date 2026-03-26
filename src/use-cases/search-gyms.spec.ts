@@ -28,6 +28,14 @@ describe('Search Gyms Use Case', () => {
       longitude: 0,
     })
 
+    await gymsRepository.create({
+      title: 'TypeScript Gym',
+      description: null,
+      phone: '',
+      latitude: 0,
+      longitude: 0,
+    })
+
     const { gyms } = await sut.execute({
       query: 'JavaScript',
       page: 1,
@@ -40,6 +48,27 @@ describe('Search Gyms Use Case', () => {
       expect.objectContaining({
         title: 'JavaScript Gym 2',
       }),
+    ])
+  })
+
+  it('should be able to search for gyms with pagination', async () => {
+    for (let i = 1; i <= 22; i++) {
+      await gymsRepository.create({
+        title: `JavaScript Gym ${i}`,
+        description: null,
+        phone: '',
+        latitude: 0,
+        longitude: 0,
+      })
+    }
+    const { gyms } = await sut.execute({
+      query: 'JavaScript',
+      page: 2,
+    })
+    expect(gyms).toHaveLength(2)
+    expect(gyms).toEqual([
+      expect.objectContaining({ title: 'JavaScript Gym 21' }),
+      expect.objectContaining({ title: 'JavaScript Gym 22' }),
     ])
   })
 })
